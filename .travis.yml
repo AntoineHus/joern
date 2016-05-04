@@ -1,5 +1,8 @@
 language: java
-install: ant deps
+before_script: 
+  - wget http://mlsec.org/joern/lib/lib.tar.gz
+  - tar xvzf lib.tar.gz
+install: ant
 jdk:
   - oraclejdk7
   - openjdk7
