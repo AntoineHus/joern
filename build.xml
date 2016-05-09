@@ -1,121 +1,187 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Joern" default="jar" basedir=".">
-        
-        <property environment="env"/>
-        <property name="src.dir" location="src" />
-        <property name="build.dir" location="bin" />
-        <property name="lib.dir" location="lib" />
-        <property name="test.dir" location="src" />
-        <property name="test.report.dir" location="testreport" />
+<project xmlns:ivy="antlib:org.apache.ivy.ant"
+		 name="Joern" 
+		 default="jar">
 
-        <!-- Junit class path -->
-        <path id="junit.class.path">
-                <pathelement location="${lib.dir}/junit.jar" />
-                <pathelement location="${lib.dir}/hamcrest-core-1.3.jar" />
-                <pathelement location="${lib.dir}/geronimo-jta_1.1_spec-1.1.1.jar"/>
-                <pathelement location="${build.dir}" />
-       </path>
+	<!--<property environment="env"/>-->
+	<property name="main.build.dir" value="build/main" />
+	<property name="main.src.dir" value="src/" />
+	<property name="main.lib.dir" location="lib" />
+	<property name="test.build.dir" value="build/test" />
+	<property name="test.src.dir" value="src/test/" />
+	<property name="targetVersion" value="1.8" />
 
-        <!-- Add jars to the classpath -->
-        <path id="joern.classpath">
-                <pathelement location="bin"/>
-        <path refid="junit.class.path"/>
-                <pathelement location="${lib.dir}/antlr4-runtime-4.2.1-SNAPSHOT.jar"/>
-	        <pathelement location="${lib.dir}/antlr4-annotations-4.2.1-SNAPSHOT.jar"/>
-	        <pathelement location="${lib.dir}/commons-cli-1.2.jar"/>
-                <pathelement location="${lib.dir}/hamcrest-core-1.3.jar"/>
-                <pathelement location="${lib.dir}/lucene-core-3.6.2.jar"/>
-                <pathelement location="${lib.dir}/neo4j-kernel-2.1.8.jar"/>
-                <pathelement location="${lib.dir}/neo4j-lucene-index-2.1.8.jar"/>
-	        <pathelement location="${lib.dir}/neo4j-primitive-collections-2.1.8.jar"/>
-          </path>
+	<!-- Ivy path -->
 
-  <target name="clean">
-    <delete dir="${build.dir}" />
-    <delete dir="${test.report.dir}" />
-  </target>
+	<property name="ivy.dir" location="ivy"/>
+	<property name="ivy.dep.file" location="ivy.xml"/>
+	<property name="ivy.version" value="2.3.0"/>
 
-  <target name="makedir">
-    <mkdir dir="${build.dir}" />
-    <mkdir dir="${test.report.dir}" />
-  </target>
-  
-<target name="resolve">
-        <ivy:retrieve />
-  </target>
+	<property name="lib.dir" value="lib"/>
 
-  <target name="compile">
-    <javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false">
-	<src path="src"/>
-	<classpath refid="joern.classpath"/>
-    </javac>
-  </target>
+	<!-- Junit class path -->
+	<path id="junit.class.path">
+		<pathelement location="${main.lib.dir}/junit-4.12.jar" />
+		<pathelement location="${main.lib.dir}/hamcrest-core-1.3.jar" />
+		<pathelement location="${main.lib.dir}/geronimo-jta_1.1_spec-1.1.1.jar" />
+		<pathelement location="${main.build.dir}" />
+	</path>
 
-  <target name="jar" depends="clean,makedir,compile">
-    <jar destfile="${build.dir}/joern.jar"
-	 basedir="${build.dir}"
-	 includes="**/*.class">
-      <manifest>
-	<attribute name="Main-Class" value="tools.index.IndexMain" />
-      </manifest>
-      <fileset dir="${build.dir}" includes="**/*.class" />
-      <zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
-    </jar>
-  </target>
+	<!-- Add jars to the classpath -->
+	<path id="joern.classpath">
+		<pathelement location="bin" />
+		<path refid="junit.class.path" />
+		<pathelement location="${main.lib.dir}/antlr4-runtime-4.2.2.jar" />
+		<pathelement location="${main.lib.dir}/antlr4-annotations-4.2.2.jar" />
+		<pathelement location="${main.lib.dir}/commons-cli-1.2.jar" />
+		<pathelement location="${main.lib.dir}/lucene-core-3.6.2.jar" />
+		<pathelement location="${main.lib.dir}/neo4j-kernel-2.1.8.jar" />
+		<pathelement location="${main.lib.dir}/neo4j-lucene-index-2.1.8.jar" />
+		<pathelement location="${main.lib.dir}/neo4j-primitive-collections-2.1.8.jar" />
+	</path>
 
-  <target name="tools" depends="icfg,argumentTainter">
-  </target>
 
-  <target name="prepareTestDB" depends="tools">
-    <exec executable="${env.SHELL}">
-      <arg value="rebuildTestDB.sh"/>
-    </exec>
-  </target>
+	<target name="clean">
+		<delete dir="${main.build.dir}" />
+		<delete dir="${test.report.dir}" />
+	</target>
 
-  <target name="test" depends="jar, prepareTestDB">
-    <junit printsummary="yes" haltonfailure="false">
-      <classpath refid="joern.classpath" />
+	<target name="makedir">
+		<mkdir dir="${main.build.dir}" />
+		<mkdir dir="${test.report.dir}" />
+	</target>
 
-      <formatter type="xml" />
+	<target name="compile" description="build the distribution" depends="ivy-resolve">
+		<mkdir dir="${main.build.dir}" />
+		<javac srcdir="${main.src.dir}" destdir="${main.build.dir}" includeantruntime="false" />
+		<src path="src" />
+		<classpath refid="joern.classpath" />
+	</target>
 
-      <batchtest fork="yes" todir="${test.report.dir}" skipnontests="true">
-	<fileset dir="${test.dir}">
-	  <include name="tests/**/*.java" />
-	</fileset>
-      </batchtest>
-    </junit>
+	<target name="jar" depends="clean,makedir,compile">
+		<jar destfile="${build.dir}/joern.jar" basedir="${build.dir}" includes="**/*.class">
+			<manifest>
+				<attribute name="Main-Class" value="tools.index.IndexMain" />
+			</manifest>
+			<fileset dir="${build.dir}" includes="**/*.class" />
+			<zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
+		</jar>
+	</target>
 
-    <junitreport todir="${test.report.dir}">
-      <fileset dir="${test.report.dir}">
-	<include name="TEST-*.xml"/>
-      </fileset>
-      <report format="frames" todir="${test.report.dir}/html"/>
-    </junitreport>
+	<target name="tools" depends="icfg,argumentTainter">
+	</target>
 
-  </target>
+	<target name="prepareTestDB" depends="tools">
+		<exec executable="${env.SHELL}">
+			<arg value="rebuildTestDB.sh" />
+		</exec>
+	</target>
 
-  <target name="icfg" depends="compile">
-    <jar destfile="${build.dir}/icfg.jar"
-	 basedir="${build.dir}"
-	 includes="**/*.class">
-      <manifest>
-	<attribute name="Main-Class" value="tools.icfg.ICFGMain" />
-      </manifest>
-    <fileset dir="${build.dir}" includes="**/*.class" />
-    <zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
-    </jar>
-  </target>
+	<target name="test" depends="jar, prepareTestDB">
+		<junit printsummary="yes" haltonfailure="false">
+			<classpath refid="joern.classpath" />
 
-  <target name="argumentTainter" depends="compile">
-    <jar destfile="${build.dir}/argumentTainter.jar"
-	 basedir="${build.dir}"
-	 includes="**/*.class">
-      <manifest>
-	<attribute name="Main-Class" value="tools.argumentTainter.ArgumentTainterMain" />
-      </manifest>
-      <fileset dir="${build.dir}" includes="**/*.class" />
-      <zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
-    </jar>
-  </target>
+			<formatter type="xml" />
+
+			<batchtest fork="yes" todir="${test.report.dir}" skipnontests="true">
+				<fileset dir="${test.dir}">
+					<include name="tests/**/*.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<junitreport todir="${test.report.dir}">
+			<fileset dir="${test.report.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${test.report.dir}/html" />
+		</junitreport>
+
+	</target>
+
+	<target name="icfg" depends="compile">
+		<jar destfile="${build.dir}/icfg.jar" basedir="${build.dir}" includes="**/*.class">
+			<manifest>
+				<attribute name="Main-Class" value="tools.icfg.ICFGMain" />
+			</manifest>
+			<fileset dir="${build.dir}" includes="**/*.class" />
+			<zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
+		</jar>
+	</target>
+
+	<target name="argumentTainter" depends="compile">
+		<jar destfile="${build.dir}/argumentTainter.jar" basedir="${build.dir}" includes="**/*.class">
+			<manifest>
+				<attribute name="Main-Class" value="tools.argumentTainter.ArgumentTainterMain" />
+			</manifest>
+			<fileset dir="${build.dir}" includes="**/*.class" />
+			<zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
+		</jar>
+	</target>
+	
+	<!-- Antlr automatic generation base on the grammar -->
+
+	<!-- java -jar antlr-4.4-complete.jar -o class -package net.drlv.antlr4 -->
+	<target name="antlr4-gensrc" depends="ivy-resolve" >
+		<mkdir dir="${gen-src.dir}"/>
+		<java jar="${antlr4.dir}/antlr-4.4-complete.jar" fork="true">
+			<arg line="-package net.drlv.antlr4 *.g4 -o ${gen-src.dir}"/>
+			<arg line="-listener -no-visitor -encoding UTF-8"/>
+			<arg line="-package net.drlv.antlr4"/>
+		</java>
+	</target>
+	<!-- javac -cp ".;antlr4antlr-4.4-complete.jar"  -d classes srcnetdrlvantlr4*.java -->
+	<target name="generate_grammar" depends="antlr4-gensrc">
+		<mkdir dir="${main.build.dir}"/>
+		<javac srcdir="${gen-src.dir}"
+				destdir="$main.build.dir}"
+				classpath="${main.lib.dir}/antlr-4.4-complete.jar"
+				debug="on" />
+	</target>
+	<!-- javac -cp "./classes;.;antlr4antlr-4.4-complete.jar"  -d classes srcnetdrlvHelloRunner.java -->
+	<target name="compile-runner" depends="compile">
+		<javac srcdir="${src.dir}" 
+					destdir="${build.dir}"
+					classpath="${antlr4.dir}/antlr-4.4-complete.jar:${build.dir}"
+			/>
+	</target>
+	<!-- Ivy -->
+
+	<condition property="ivy.jar.exists">
+		<available file="${ivy.dir}/ivy-${ivy.version}.jar"/>
+	</condition>
+
+	<target name="ivy-download" unless="ivy.jar.exists">
+		<get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar"
+	         dest="${ivy.dir}/ivy-${ivy.version}.jar" 
+	         usetimestamp="true"/>
+	</target>
+
+	<target name="ivy-init" depends="ivy-download" unless="skip.ivy" description="initialize ivy">
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.dir}" includes="ivy-${ivy.version}.jar"/>
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+		<!--<ivy:settings file="${ivy.dir}/ivysettings.xml"/> -->
+	</target>
+
+	<target name="ivy-clean-libs" depends="ivy-init" description="clean up ivy libs">
+		<delete includeemptydirs="true" quiet="true">
+			<fileset dir=".">
+				<include name="**/lib/ivy/**/*"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="ivy-report" depends="ivy-init" description="generate Ivy reports for all confs">
+		<ivy:resolve conf="*" log="download-only"/>
+		<ivy:report conf="*" todir="${build.dir}/ivy-report"/>
+	</target>
+
+	<target name="ivy-resolve" depends="ivy-init" description="fetch dependencies with ivy">
+		<ivy:resolve conf="*" log="download-only"/>
+		<ivy:report conf="*" todir="ivy-report"/>
+		<ivy:retrieve conf="*" pattern="lib/ivy/[conf]/[artifact]-[revision](-[classifier]).[ext]"/>
+	</target>
 
 </project>
