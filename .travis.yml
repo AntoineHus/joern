@@ -1,5 +1,7 @@
 language: java
-install: ant retrieve
-script: 
+sudo: required
+install: 
   - ant ivy-resolve
+  - ant compile
   - ant jar
+
