@@ -10,7 +10,7 @@
 	<!-- Ivy path -->
 	<property name="ivy.dir" location="ivy/" />
 	<property name="ivy.dep.file" location="ivy.xml" />
-	<property name="ivy.version" value="2.3.0" />
+	<property name="ivy.version" value="2.4.0" />
 
 	<!-- Ivy -->
 
@@ -66,9 +66,9 @@
 		<path refid="junit.class.path" />
 		<pathelement location="${lib.dir}/commons-cli-1.2.jar" />
 		<pathelement location="${lib.dir}/lucene-core-3.6.2.jar" />
-		<pathelement location="${lib.dir}/neo4j-kernel-2.1.5.jar" />
-		<pathelement location="${lib.dir}/neo4j-lucene-index-2.1.5.jar" />
-		<pathelement location="${lib.dir}/neo4j-primitive-collections-2.1.5.jar" />
+		<pathelement location="${lib.dir}/neo4j-kernel-2.1.8.jar" />
+		<pathelement location="${lib.dir}/neo4j-lucene-index-2.1.8.jar" />
+		<pathelement location="${lib.dir}/neo4j-primitive-collections-2.1.8.jar" />
 		<pathelement location="${lib.dir}/antlr4-runtime-4.5.3.jar" />
 		<pathelement location="${lib.dir}/antlr4-annotations-4.3.jar" />
 	</path>
