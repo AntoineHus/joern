@@ -1,7 +1,5 @@
 language: java
 
-install: ant
-
 script: 
   - ant ivy-resolve
   - ant jar
