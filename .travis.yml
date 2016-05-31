@@ -1,6 +1,5 @@
 language: java
-
+install: ant retrieve
 script: 
   - ant ivy-resolve
   - ant jar
-
