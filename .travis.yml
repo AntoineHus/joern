@@ -1,8 +1,8 @@
 language: java
 
 install: ant
-script: ant ivy-resolve
-jdk:
-  - oraclejdk7
-  - openjdk7
+
+script: 
+  - ant ivy-resolve
+  - ant jar
 
