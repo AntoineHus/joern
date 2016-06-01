@@ -8,9 +8,9 @@
        <dependency org="org.antlr" name="antlr4-runtime" rev="4.5.3"/>
        <dependency org="org.antlr" name="antlr4-annotations" rev="4.3"/>
        <dependency org="commons-cli" name="commons-cli" rev="1.2"/>
-       <dependency org="org.neo4j" name="neo4j-kernel" rev="2.1.5"/>
-       <dependency org="org.neo4j" name="neo4j-lucene-index" rev="2.1.5"/>
-       <dependency org="org.neo4j" name="neo4j-primitive-collections" rev="2.1.5"/>
+       <dependency org="org.neo4j" name="neo4j-kernel" rev="2.1.8"/>
+       <dependency org="org.neo4j" name="neo4j-lucene-index" rev="2.1.8"/>
+       <dependency org="org.neo4j" name="neo4j-primitive-collections" rev="2.1.8"/>
        <!-- http://mvnrepository.com/artifact/org.antlr/antlr4 -->
 	   <dependency org="org.antlr" name="antlr4" rev="4.5.3"/>
     </dependencies>

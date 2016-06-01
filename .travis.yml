@@ -1,0 +1,8 @@
+language: java
+sudo: required
+
+install: 
+  - ant init-ivy
+  - ant compile
+  - ant jar
+

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Joern" default="jar" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="Joern" default="init-ivy" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<property name="src.dir" location="src" />
 	<property name="build.dir" location="bin" />
@@ -8,6 +8,10 @@
 	<property name="test.report.dir" location="testreport" />
 
 	<!-- Ivy path -->
+	<property name="ivy.home" value="${user.home}/.ant" />
+	<property name="ivy.jar.dir" value="${ivy.home}/lib" />
+	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+
 	<property name="ivy.dir" location="ivy/" />
 	<property name="ivy.dep.file" location="ivy.xml" />
 	<property name="ivy.version" value="2.3.0" />
@@ -19,8 +23,35 @@
 	</condition>
 
 	<target name="ivy-download" unless="ivy.jar.exists">
-		<get dest="${ivy.dir}/ivy-${ivy.version}.jar"  src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar" />
+		<get dest="${ivy.dir}/ivy-${ivy.version}.jar" src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar" />
 	</target>
+
+
+	<target name="download-ivy" unless="offline">
+
+		<mkdir dir="${ivy.jar.dir}"/>
+		<!-- download Ivy from web site so that it can be used even without any special installation -->
+		<get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar"
+	       dest="${ivy.jar.file}"
+	       usetimestamp="true"/>
+	</target>
+
+	<target name="init-ivy" depends="download-ivy">
+		<!-- try to load ivy here from ivy home, in case the user has not 
+	  already dropped it into ant's lib dir (note that the latter copy 
+	   will always take precedence). We will not fail as long as local 
+	   lib dir exists (it may be empty) and ivy is in at least one of 
+	  ant's lib dir or the local lib dir. -->
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.jar.dir}"
+	             includes="*.jar"/>
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml"
+	           uri="antlib:org.apache.ivy.ant"
+	           classpathref="ivy.lib.path"/>
+	</target>
+
+
 
 	<target name="ivy-resolve" depends="clean,makedir,ivy-download" description="fetch dependencies with ivy">
 		<path id="ivy.lib.path">
@@ -45,6 +76,9 @@
 	</target>
 
 	<target name="compile" depends="ivy-resolve">
+		<exec executable="/bin/bash">
+			<arg value="genParsers.sh" />
+		</exec>
 		<javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false">
 			<src path="src" />
 			<classpath refid="joern.classpath" />
@@ -61,16 +95,17 @@
 	<path id="joern.classpath">
 		<pathelement location="bin" />
 		<path refid="junit.class.path" />
-		<pathelement location="${lib.dir}/antlr4-runtime-4.5.3.jar" />
-		<pathelement location="${lib.dir}/antlr4-annotations-4.3.jar" />
 		<pathelement location="${lib.dir}/commons-cli-1.2.jar" />
 		<pathelement location="${lib.dir}/lucene-core-3.6.2.jar" />
-		<pathelement location="${lib.dir}/neo4j-kernel-2.1.5.jar" />
-		<pathelement location="${lib.dir}/neo4j-lucene-index-2.1.5.jar" />
-		<pathelement location="${lib.dir}/neo4j-primitive-collections-2.1.5.jar" />
+		<pathelement location="${lib.dir}/neo4j-kernel-2.1.8.jar" />
+		<pathelement location="${lib.dir}/neo4j-lucene-index-2.1.8.jar" />
+		<pathelement location="${lib.dir}/neo4j-primitive-collections-2.1.8.jar" />
+		<pathelement location="${lib.dir}/antlr4-runtime-4.5.3.jar" />
+		<pathelement location="${lib.dir}/antlr4-annotations-4.3.jar" />
 	</path>
 
 	<target name="jar" depends="clean,makedir,compile">
+
 		<jar destfile="${build.dir}/joern.jar" basedir="${build.dir}" includes="**/*.class">
 			<manifest>
 				<attribute name="Main-Class" value="tools.index.IndexMain" />
