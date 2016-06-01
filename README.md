@@ -1,6 +1,8 @@
 joern
 ====
-
+#### Build status: 
+https://travis-ci.org/AntoineHus/joern.svg?branch=master
+####
 Source code analysis is full of graphs: abstract syntax trees, control
 flow graphs, call graphs, program dependency graphs and directory
 structures, to name a few. Joern analyzes a code base using a robust
