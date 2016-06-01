@@ -1,7 +1,8 @@
 language: java
 sudo: required
+
 install: 
-  - ant ivy-resolve
+  - ant ivy-init
   - ant compile
   - ant jar
 
